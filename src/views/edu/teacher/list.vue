@@ -38,7 +38,7 @@
       <el-button type="default" @click="resetData()">清空</el-button>
     </el-form>
 
-    <!-- 表格 -->
+    <!-- 表格 scope可以获取到整个表格，scope.row获取表格中的一行-->
     <el-table
       v-loading="listLoading"
       :data="list"
@@ -118,11 +118,9 @@ export default {
                 // console.log(response)
                 this.list = response.data.rows
                 this.total = response.data.total
-                console.log(this.list)
-                console.log(this.total)
-              })
-              .catch(error => { 
-                console.log(error)
+                // console.log(this.list)
+                // console.log(this.total)
+                console.log(this.teacherQueryVo)
               })
         },
         /**
@@ -133,6 +131,25 @@ export default {
         resetData() {
             this.teacherQueryVo = {}
             this.getList()
+        },
+        //删除讲师的方法
+        removeDataById(id) {
+            this.$confirm('此操作将永久删除该讲师记录, 是否继续?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              teacher.deleteTeacherById(id)
+                .then(response => {
+                  //提示信息
+                  this.$message({
+                    type: 'success',
+                    message: '删除成功!'
+                  });
+                //回到列表页面
+                this.getList()
+              })
+            }) 
         }
     }
 }
