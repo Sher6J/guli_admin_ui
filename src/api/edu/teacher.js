@@ -4,9 +4,9 @@ export default {
 
   /**
    * 讲师列表（条件查询分页）
-   * @param {*} current 当前页
-   * @param {*} limit  每页记录数
-   * @param {*} teacherQueryVo 条件查询对象
+   * @param {当前页} current
+   * @param {每页记录数} limit
+   * @param {条件查询对象} teacherQueryVo
    */
   getTeacherListPage(current, limit, teacherQueryVo) {
     return request({
@@ -20,7 +20,7 @@ export default {
   },
   /**
    * 删除讲师
-   * @param {*} id 讲师的id
+   * @param {讲师的id} id
    */
   deleteTeacherById(id) {
     return request({
@@ -30,11 +30,32 @@ export default {
   },
   /**
    * 添加讲师
-   * @param {*} teacher 添加的讲师对象
+   * @param {添加的讲师对象} teacher
    */
   addTeacher(teacher) {
     return request({
       url: `/eduservice/edu-teacher/addTeacher`,
+      method: 'post',
+      data: teacher
+    })
+  },
+  /**
+   * 根据id查询讲师信息
+   * @param {讲师的id} id
+   */
+  getTeacherInfoById(id) {
+    return request({
+      url: `/eduservice/edu-teacher/getTeacher/${id}`,
+      method: 'get'
+    })
+  },
+  /**
+   * 修改讲师
+   * @param {讲师对象} teacher
+   */
+  updateTeacher(teacher) {
+    return request({
+      url: `/eduservice/edu-teacher/updateTeacher`,
       method: 'post',
       data: teacher
     })

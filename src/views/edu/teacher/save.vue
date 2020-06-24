@@ -42,12 +42,29 @@ export default {
       saveBtnDisabled:false  
     }
   },
-  created () {
-    
+  created () { //页面渲染之前执行，实现数据回显
+    if (this.$route.params && this.$route.params.id) {
+      const id = this.$route.params.id
+      this.getInfo(id)
+    }
   },
   methods: {
+    //根据讲师id查询讲师信息
+    getInfo(id) {
+      teacher.getTeacherInfoById(id)
+        .then(response => {
+          this.teacher = response.data.teacher
+        })
+    },
     saveOrUpdate() {
-      this.saveTeacher()
+      //判断是修改还是添加
+      if (!this.teacher.id) {
+        //添加
+        this.saveTeacher()
+      } else {
+        //修改
+        this.updateTeacher()
+      }
     },
     //添加讲师方法
     saveTeacher() {
@@ -57,6 +74,19 @@ export default {
           this.$message({
             type: 'success',
             message: '保存讲师成功！'
+          });
+          //回到列表页面，当前在添加讲师页面，要到讲师列表页面，需要路由跳转即重定向
+          this.$router.push({path:'/teacher/table'})
+        })
+    },
+    //修改讲师方法
+    updateTeacher() {
+      teacher.updateTeacher(this.teacher)
+        .then(response => {
+          //提示信息
+          this.$message({
+            type: 'success',
+            message: '修改讲师成功！'
           });
           //回到列表页面，当前在添加讲师页面，要到讲师列表页面，需要路由跳转即重定向
           this.$router.push({path:'/teacher/table'})
