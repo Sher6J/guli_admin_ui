@@ -43,12 +43,26 @@ export default {
     }
   },
   created () { //页面渲染之前执行，实现数据回显
-    if (this.$route.params && this.$route.params.id) {
-      const id = this.$route.params.id
-      this.getInfo(id)
+    this.init()
+  },
+  //监听，当路由发生变化时，$route(to, from)方法就会执行
+  watch: {
+    $route(to, from) {
+      // console.log('watch $route')
+      this.init()
     }
   },
   methods: {
+    init() {
+      //路径中有id值，修改操作
+      if (this.$route.params && this.$route.params.id) {
+        const id = this.$route.params.id
+        this.getInfo(id)
+      } else { //路径中没有id值，添加操作
+        //清空表单
+        this.teacher = {}
+      }
+    },
     //根据讲师id查询讲师信息
     getInfo(id) {
       teacher.getTeacherInfoById(id)
