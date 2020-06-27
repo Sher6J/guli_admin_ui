@@ -26,6 +26,35 @@
       </el-form-item>
 
       <!-- 讲师头像：TODO -->
+      <!-- 讲师头像 -->
+      <el-form-item label="讲师头像">
+
+          <!-- 头衔缩略图 -->
+          <pan-thumb :image="teacher.avatar"/>
+          <!-- 文件上传按钮 -->
+          <el-button type="primary" icon="el-icon-upload" @click="imagecropperShow=true">更换头像
+          </el-button>
+
+          <!--
+          v-show：是否显示上传组件
+          :key：类似于id，如果一个页面多个图片上传控件，可以做区分
+          :url：后台上传的url地址
+          @close：关闭上传组件
+          @crop-upload-success：上传成功后的回调 
+          
+          下面的file属性对应<input type="file" name="file"></input>
+          -->
+          <image-cropper
+                        v-show="imagecropperShow"
+                        :width="300"
+                        :height="300"
+                        :key="imagecropperKey"
+                        :url="BASE_API+'/eduoss/fileoss'"
+                        field="file"
+                        @close="close"
+                        @crop-upload-success="cropSuccess"/>
+
+      </el-form-item>      
 
       <el-form-item>
         <el-button :disabled="saveBtnDisabled" type="primary" @click="saveOrUpdate">保存</el-button>
@@ -35,10 +64,18 @@
 </template>
 <script>
 import teacher from '@/api/edu/teacher'
+import ImageCropper from '@/components/ImageCropper'
+import PanThumb from '@/components/PanThumb'
 export default {
+  components: { ImageCropper, PanThumb }, // 声明引入的组件
   data() {
     return {
-      teacher:{},
+      teacher:{
+        avatar:process.env.OSS_PATH + '/2020/06/27/7c23e9032ee448ada96369de42485911file.png'
+      },
+      imagecropperShow:false, // 上传弹框组件是否显示
+      imagecropperKey:0, // 上传组件key值
+      BASE_API:process.env.BASE_API, //获取dev.env.js里面地址
       saveBtnDisabled:false  
     }
   },
@@ -105,6 +142,19 @@ export default {
           //回到列表页面，当前在添加讲师页面，要到讲师列表页面，需要路由跳转即重定向
           this.$router.push({path:'/teacher/table'})
         })
+    },
+    //关闭上传弹框的方法
+    close() {
+      this.imagecropperShow=false
+      //上传组件初始化
+      this.imagecropperKey = this.imagecropperKey + 1
+    },
+    //上传成功后方法
+    cropSuccess(data) {
+      this.imagecropperShow=false
+      this.imagecropperKey = this.imagecropperKey + 1
+      //上传之后接口返回图片地址
+      this.teacher.avatar=data.url
     }
   }
 }
