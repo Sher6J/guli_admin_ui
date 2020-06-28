@@ -62,8 +62,9 @@ export default {
             this.$message({
                 type: 'success',
                 message: '添加课程分类成功'
-            })           
-
+            })  
+            // 添加成功后跳转课程分类列表，使用路由跳转
+            this.$router.push({path:'/subject/list'})         
         },
         //上传失败
         fileUploadError() {
