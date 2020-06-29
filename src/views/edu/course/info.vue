@@ -26,7 +26,7 @@
         -->
         <el-select
             v-model="courseInfo.subjectParentId"
-            placeholder="一级分类" @change="oneSubjectChanged">
+            placeholder="一级" @change="oneSubjectChanged">
             <el-option
                 v-for="subject in oneSubjectList"
                 :key="subject.id"
@@ -34,7 +34,7 @@
                 :value="subject.id"/>
         </el-select>
         <!-- 二级分类 -->
-        <el-select v-model="courseInfo.subjectId" placeholder="二级分类">
+        <el-select v-model="courseInfo.subjectId" placeholder="二级（请先选择一级）">
         <el-option
             v-for="subject in twoSubjectList"
             :key="subject.id"
@@ -109,6 +109,7 @@ export default {
                 cover: '/static/uploadcover.jpg',
                 price: 0              
             },
+            courseId: '',
             teacherList:[], //封装所有讲师的数组
             oneSubjectList:[], //一级分类
             twoSubjectList:[], //二级分类
@@ -116,12 +117,62 @@ export default {
         }
     },
     created () {
-        //初始化所有讲师
-        this.getTeacherList()
-        //初始化一级分类
-        this.getOneSubject()
+        this.init()
+    },
+    watch: {
+        $route(to, from) {
+        // console.log('watch $route')
+        this.init()
+        }
     },
     methods: {
+        init() {
+            //如果路由中有id，则是修改数据，没有就是添加数据进行正常初始化即可
+            if (this.$route.params && this.$route.params.id) {
+                this.courseId = this.$route.params.id
+                //调用根据id查询课程方法
+                this.getInfo()
+            } else {
+                this.courseInfo = {
+                    title: '',
+                    subjectId: '', //二级分类id
+                    subjectParentId: '', //一级分类id
+                    teacherId: '',
+                    lessonNum: 0,
+                    description: '',
+                    cover: '/static/uploadcover.jpg',
+                    price: 0 
+                }
+                //初始化所有讲师
+                this.getTeacherList()
+                //初始化一级分类
+                this.getOneSubject()
+            }
+        },
+        //根据课程id查询信息
+        getInfo() {
+            course.getCourseInfoById(this.courseId)
+              .then(response => {
+                  //courseInfo为课程基本信息，包装了 一级分类id 和 二级分类id
+                  this.courseInfo = response.data.courseInfoVo
+                  //1.查询所有的分类，包含一级和二级
+                  subject.getSubjectList()
+                    .then(response => {
+                        //2.获取所有一级分类
+                        this.oneSubjectList = response.data.list
+                        //3.把包含所有一级分类的数组进行遍历，比较当前courseInfo里面一级分类id和所有一级分类
+                        for(var i = 0; i < this.oneSubjectList.length; i++) {
+                            var oneSubject = this.oneSubjectList[i]
+                            if (this.courseInfo.subjectParentId === oneSubject.id) {
+                                //获取该一级分类中的所有二级分类
+                                this.twoSubjectList = oneSubject.children
+                            }
+                        }
+                    })
+                    //初始化讲师
+                    this.getTeacherList()
+              })
+        },
         /**
          * 绑定到@change的方法，当一级分类下拉选项变化时触发
          * 当点击某一个一级分类，触发change事件，然后显示对应的二级分类
@@ -172,7 +223,8 @@ export default {
             }
             return isJPG && isLt2M
         },
-        saveOrUpdate() {
+        //添加课程
+        addCourse() {
             course.addCourseInfo(this.courseInfo)
               .then(response => {
                   // 提示
@@ -183,6 +235,28 @@ export default {
                   // 跳转到第二步
                   this.$router.push({path:'/course/chapter/'+response.data.courseId})
               })
+        },
+        //修改课程
+        updateCourse() {
+            course.updateCourseInfo(this.courseInfo)
+              .then(response => {
+                  // 提示
+                  this.$message({
+                    type: 'success',
+                    message: '修改课程信息成功'
+                  })  
+                  // 跳转到第二步
+                  this.$router.push({path:'/course/chapter/'+this.courseId})
+              })
+        },
+        //路由中有id则是修改课程，无id则是添加课程
+        saveOrUpdate() {
+            //判断是添加还是修改
+            if (!this.courseInfo.id) {
+                this.addCourse()
+            } else {
+                this.updateCourse()
+            }
         }
     }
 }
