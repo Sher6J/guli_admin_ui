@@ -10,6 +10,17 @@
       <el-step title="课程最终发布"/>
     </el-steps>
 
+    <ul>
+        <li v-for="chapter in chapterList" :key="chapter.id">
+            {{chapter.title}}
+            <ul>
+                <li v-for="video in chapter.children" :key="video.id">
+                    {{video.title}}
+                </li>
+            </ul>
+        </li>
+    </ul>
+
     <el-form label-width="120px">
 
       <el-form-item>
@@ -20,16 +31,31 @@
   </div>
 </template>
 <script>
+import chapter from '@/api/edu/chapter'
 export default {
     data() {
         return {
-            saveBtnDisabled:false
+            saveBtnDisabled:false,
+            courseId:'',
+            chapterList:[]
         }
     },
     created () {
-        
+        //获取到路由中的id值
+        if (this.$route.params && this.$route.params.id) {
+            this.courseId = this.$route.params.id
+            //根据课程id查询章节和小节
+            this.getChapters()
+        }
     },
     methods: {
+        //根据课程id查询章节和小节
+        getChapters() {
+            chapter.getChapters(this.courseId)
+              .then(response => {
+                  this.chapterList = response.data.chapters
+              })
+        },
         previous() {
             // 跳转到第一步
             this.$router.push({path:'/course/info/1'})
