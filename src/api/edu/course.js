@@ -11,7 +11,7 @@ export default {
   getPageList(current, limit, courseQueryVo) {
     return request({
       url: `/eduservice/edu-course/pageCourseCondition/${current}/${limit}`,
-      method: 'get',
+      method: 'post',
       data: courseQueryVo
     })
   },
@@ -77,6 +77,16 @@ export default {
     return request({
       url: `/eduservice/edu-course/publishCourse/${id}`,
       method: 'post'
+    })
+  },
+  /**
+   * 根据课程id删除课程
+   * @param {课程id} id
+   */
+  removeCourseById(id) {
+    return request({
+      url: `/eduservice/edu-course/deleteCourse/${id}`,
+      method: 'delete'
     })
   }
 }

@@ -110,7 +110,7 @@
         <router-link :to="'/edu/course/chapter/'+scope.row.id">
             <el-button type="text" size="mini" icon="el-icon-edit">编辑课程大纲</el-button>
         </router-link>
-        <el-button type="text" size="mini" icon="el-icon-delete">删除</el-button>
+        <el-button type="text" size="mini" icon="el-icon-delete" @click="removeCourseById(scope.row.id)">删除</el-button>
         </template>
     </el-table-column>
     </el-table>
@@ -162,6 +162,7 @@ export default {
   },
 
   methods: {
+    //查询数据
     fetchData(current = 1) { // 调用api层获取数据库中的数据
       console.log('加载列表')
       // 当点击分页组件的切换按钮的时候，会传输一个当前页码的参数current
@@ -178,19 +179,19 @@ export default {
             this.listLoading = false
         })
     },
-
+    //初始化讲师列表
     initTeacherList() {
       teacher.getList().then(response => {
         this.teacherList = response.data.items
       })
     },
-
+    //初始化一级分类列表
     initSubjectList() {
       subject.getSubjectList().then(response => {
         this.oneSubjectList = response.data.list
       })
     },
-
+    //一级分类改变时触发显示二级分类列表
     subjectLevelOneChanged(value) {
       for (let i = 0; i < this.oneSubjectList.length; i++) {
         if (this.oneSubjectList[i].id === value) {
@@ -199,11 +200,30 @@ export default {
         }
       }
     },
-
+    //重置数据
     resetData() {
       this.courseQueryVo = {}
       this.twoSubjectList = [] // 二级分类列表
       this.fetchData()
+    },
+    //删除课程
+    removeCourseById(id) {
+        this.$confirm('此操作将永久删除该课程, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+        }).then(() => {
+            course.removeCourseById(id) 
+                .then(response => {
+                    //提示信息
+                    this.$message({
+                        type: 'success',
+                        message: '删除小节成功!'
+                    });
+                    //刷新页面
+                    this.fetchData()
+                })
+            }) 
     }
   }
 }
