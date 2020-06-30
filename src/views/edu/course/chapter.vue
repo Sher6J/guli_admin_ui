@@ -32,7 +32,7 @@
                     :key="video.id">
                     <p>{{ video.title }}
                         <span class="acts">
-                            <el-button type="text">编辑</el-button>
+                            <el-button type="text" @click="editVideo(video.id)">编辑</el-button>
                             <el-button type="text" @click="removeVideo(video.id)">删除</el-button>
                         </span>
                     </p>
@@ -102,6 +102,7 @@ export default {
                 sort: 0
             },
             video:{ //封装小节数据
+
                 title: '',
                 sort: 0,
                 free: 0,
@@ -132,6 +133,29 @@ export default {
             this.video.sort = 0
             this.free = 0
             this.videoSourceId = ''
+        },
+        //编辑小节
+        editVideo(id) {
+            this.dialogVideoFormVisible = true
+            video.getVideoInfo(id)
+              .then(response => {
+                  this.video = response.data.item
+              })
+        },
+        //更新小节
+        updateVideo() {
+            video.updateVideo(this.video)
+              .then(response => {
+                  //关闭弹框
+                  this.dialogVideoFormVisible = false
+                  //提示信息
+                  this.$message({
+                    type: 'success',
+                    message: '编辑小节成功！'
+                  });
+                  //刷新页面
+                  this.getChapters()
+              })
         },
         //删除小节 
         removeVideo(id) {
@@ -170,7 +194,11 @@ export default {
               })
         },
         saveOrUpdateVideo() {
-            this.addVideo()
+            if (!this.video.id) {
+                this.addVideo()
+            } else {
+                this.updateVideo()
+            }
         },
         
 
