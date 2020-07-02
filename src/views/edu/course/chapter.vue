@@ -144,6 +144,25 @@ export default {
     },
     methods: {
         //=======================小节中视频操作=========================
+        //点击x之后点击 确定 时调用这个方法
+        handleVodRemove() {
+            //调用接口删除视频
+            video.deleteAliyunVod(this.video.videoSourceId)
+              .then(response => {
+                  this.$message({
+                    type: 'success',
+                    message: '删除视频成功！'
+                  });
+                  this.fileList = []
+                  //删除阿里云中的视频后，还需要把数据库中视频id和视频名称字段清空
+                  this.video.videoSourceId = ''
+                  this.video.videoOriginalName = ''
+              })
+        },
+        //点击 × 时调用这个方法
+        beforeVodRemove(file, fileList) {
+            return this.$confirm(`确认移除 ${ file.name } ?`);
+        },
         //上传视频成功调用的方法
         handleVodUploadSuccess(response, file, fileList) {
             this.video.videoSourceId = response.data.videoId

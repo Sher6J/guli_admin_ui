@@ -38,5 +38,15 @@ export default {
       method: 'post',
       data: video
     })
+  },
+  /**
+   * 删除阿里云的视频
+   * @param {视频id} id
+   */
+  deleteAliyunVod(id) {
+    return request({
+      url: `/eduvod/video/removeVideoFromAliyun/${id}`,
+      method: 'delete'
+    })
   }
 }
